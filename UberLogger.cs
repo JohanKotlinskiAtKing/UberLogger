@@ -361,7 +361,15 @@ namespace UberLogger
             return false;
         }
 
+        private static readonly List<string> HiddenNamespaces = new List<string>();
 
+        public static void HideNamespace(string ns)
+        {
+            if (!HiddenNamespaces.Contains(ns))
+            {
+                HiddenNamespaces.Add(ns);
+            }
+        }
 
         struct IgnoredUnityMethod
         {
@@ -416,6 +424,16 @@ namespace UberLogger
                 if ((method.DeclaringType.Name == ignoredUnityMethod.DeclaringTypeName) && ((ignoredUnityMethod.MethodName == null) || (method.Name == ignoredUnityMethod.MethodName)))
                 {
                     return ignoredUnityMethod.ShowHideMode;
+                }
+            }
+
+            foreach (var hiddenNamespace in HiddenNamespaces)
+            {
+                if (method.DeclaringType != null &&
+                    method.DeclaringType.Namespace != null &&
+                    method.DeclaringType.Namespace.StartsWith(hiddenNamespace))
+                {
+                    return IgnoredUnityMethod.Mode.Hide;
                 }
             }
 
